@@ -1,0 +1,7 @@
+LAGP_PATH = `echo 'library(laGP); cat(system.file(package="laGP",mustWork=TRUE))'\
+| "${R_HOME}/bin/R" --vanilla --slave`/libs/laGP.so
+LASVDGP_PATH = `echo 'library(lasvdgp); cat(system.file(package="lasvdgp",mustWork=TRUE))'\
+| "${R_HOME}/bin/R" --vanilla --slave`/libs/lasvdgp.so
+CXX_STD = CXX11
+PKG_CXXFLAGS = -I include $(SHLIB_OPENMP_CFLAGS)
+PKG_LIBS = ${LAGP_PATH} ${LASVDGP_PATH} ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS}

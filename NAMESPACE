@@ -1,0 +1,2 @@
+useDynLib(lasvdinv)
+export(lasvdinv)
