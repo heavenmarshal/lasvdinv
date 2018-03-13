@@ -2,35 +2,40 @@
 #define __MCMCUTIL_HPP__
 #include<cmath>
 #include<cstdlib>
+#include<ctime>
+#include<random>
 extern "C"{
   #include "matrix.h"
 }
-#define LOG2PI 0.79817986835
+#define LOG2PI 1.83787706641
 #define SQ(x) ((x)*(x))
 
 class priorBase{
 public:
   priorBase(int nparam_):nparam(nparam_){};
   virtual ~priorBase(){};
-  virtual double evalLogPrior(const double* param){return 0.0;};
+  virtual double evalLogPrior(const double* param){
+      return 0.0;};
 protected:
   int nparam;
 };
 class kernelBase{
 public:
-  kernelBase(int nparam_): nparam(nparam_){};
-  virtual ~kernelBase(){};
-  virtual void propose(const double* from, double* to){};
-  virtual double logDensity(const double* from, const double* to){return 0.0;};
+    kernelBase(int nparam_): nparam(nparam_), generator(time(NULL)){};
+    virtual ~kernelBase(){};
+    virtual void propose(const double* from, double* to){};
+    virtual double logDensity(const double* from, const double* to){return 0.0;};
 protected:
-  int nparam;
+    int nparam;
+    std::default_random_engine generator;
 };
 
 class likelihoodBase{
 public:
   likelihoodBase(int nparam_): nparam(nparam_){};
   virtual ~likelihoodBase(){};
-  virtual double evalLogLikelihood(const double* param){return 0.0;};
+    virtual double evalLogLikelihood(double* param){
+	return 0.0;};
 protected:
   int nparam;
 };
@@ -83,6 +88,7 @@ protected:
   double clogpost;
   double* current;
   double** sample;
+    std::default_random_engine generator;
   priorBase& prior;
   likelihoodBase& likelihood;
   kernelBase& kernel;
@@ -99,7 +105,7 @@ public:
     for(i=0; i<nparam; ++i)
       tmp -= SQ(from[i]-to[i]);
     logden = -0.5*LOG2PI-nparam*log(sigma);
-    logden -= 0.5*tmp/sigma/sigma;
+    logden += 0.5*tmp/sigma/sigma;
     return logden;
   }
   void propose(const double* from, double* to);

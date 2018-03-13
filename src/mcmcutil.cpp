@@ -1,8 +1,10 @@
 #include<cassert>
 #include<cstdlib>
 #include<cmath>
+#include<ctime>
 #include<random>		// c++11
 #include<algorithm>
+#include<iostream>
 #include "mcmcutil.hpp"
 
 extern "C"{
@@ -14,7 +16,7 @@ mcmcBase::mcmcBase(int nparam_,int nmc_, int nburn_, int nthin_,
 		   priorBase& prior_, likelihoodBase& likelihood_,
 		   kernelBase& kernel_):
   nparam(nparam_), nmc(nmc_), nburn(nburn_), nthin(nthin_),naccept(0),
-  prior(prior_), likelihood(likelihood_), kernel(kernel_)
+  generator(time(NULL)), prior(prior_), likelihood(likelihood_), kernel(kernel_)
 {
   nsample = (nmc - nburn)/nthin;
   assert(x0 != NULL);
@@ -44,7 +46,6 @@ void mcmcBase::run()
   int i, j, k;
   double logpost, logaccprob, logru;
   double *proposal;
-  std::default_random_engine generator;
   std::uniform_real_distribution<double> distribution(0.0,1.0);
   proposal = new_vector(nparam);
   for(i=0, j=-nburn, k=0; i<nmc; ++i, ++j)
@@ -53,11 +54,15 @@ void mcmcBase::run()
     logpost = evalLogPosterior(proposal);
     logaccprob = logpost + kernel.logDensity(proposal,current);
     logaccprob -= clogpost + kernel.logDensity(current,proposal);
+    // std::cout<<"clogpost= "<<clogpost<<std::endl;
+    // std::cout<<"logpost= "<<logpost<<std::endl;
+    // std::cout<<"logaccprob= "<<logaccprob<<std::endl;
     logru = distribution(generator);
     logru = log(logru);
     if(logru < logaccprob)	// accept
     {
       dupv(current,proposal,nparam);
+      clogpost = logpost;
       naccept++;
     }
     if(j >= 0 && j % nthin == 0)
@@ -77,7 +82,6 @@ void mcmcBase::getSample(double *output)
 void normalKernel::propose(const double* from, double* to)
 {
   int i;
-  std::default_random_engine generator;
   std::normal_distribution<double> distribution(0.0,sigma);
   for(i=0; i<nparam; i++)
     to[i] = from[i] + distribution(generator);

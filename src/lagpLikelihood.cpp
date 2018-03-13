@@ -1,5 +1,6 @@
 #include<cmath>
 #include<cstdlib>
+#include<iostream>
 #include"lagpLikelihood.hpp"
 
 extern "C"{
@@ -64,7 +65,7 @@ double lagpProfileLikelihood::evalLogLikelihood(double* param)
   predlasvdGPutil(lasvdgp, xpred, xi, &info);
   upb = info.sse/dtlen;
   sig2esp = Brent_fmin(0.0,upb, nloglikelihood, (void*) &info, SDEPS);
-  loglik = nloglikelihood(sig2esp,(void*) &info);
+  loglik = nloglikelihood(sig2esp,(void*) &info)+0.5*LOG2PI;
   deletelasvdGP(lasvdgp);
   free(xpred);
   return -loglik;

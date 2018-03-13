@@ -1,2 +1,2 @@
-useDynLib(lasvdinv)
+useDynLib(lasvdinv,oracleinv)
 export(lasvdinv)

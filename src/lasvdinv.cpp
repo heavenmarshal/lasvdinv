@@ -18,11 +18,11 @@ extern "C"{
   {
     unsigned int mxth, ndesign, nparam, tlen, nsample, slen;
     double **design, **resp, **xstarts;
-    ndesign = *design_;
+    ndesign = *ndesign_;
     nparam = *nparam_;
     tlen = *tlen_;
     design = new_matrix_bones(design_,ndesign,nparam);
-    resp = new_matrix_bones(resp_, nparam, tlen);
+    resp = new_matrix_bones(resp_, ndesign, tlen);
     xstarts = new_matrix_bones(xstarts_, *nstarts_, nparam);
     nsample = (*nmc_-*nburn_)/(*nthin_);
     slen = nsample * nparam;
@@ -49,6 +49,7 @@ extern "C"{
 #endif
       for(i = start; i < *nstarts_; i+=step)
       {
+
 	lagpNaiveLikelihood naiveLik(ndesign, nparam, tlen, *n0_, *nn_, *nfea_,
 				     *resvdThres_, *every_, *frac_, *gstart_,
 				     xi_, design, resp);
@@ -76,11 +77,11 @@ extern "C"{
   {
     unsigned int mxth, ndesign, nparam, tlen, nsample, slen;
     double **design, **resp, **xstarts;
-    ndesign = *design_;
+    ndesign = *ndesign_;
     nparam = *nparam_;
     tlen = *tlen_;
     design = new_matrix_bones(design_,ndesign,nparam);
-    resp = new_matrix_bones(resp_, nparam, tlen);
+    resp = new_matrix_bones(resp_, ndesign, tlen);
     xstarts = new_matrix_bones(xstarts_, *nstarts_, nparam);
     nsample = (*nmc_-*nburn_)/(*nthin_);
     slen = nsample * nparam;

@@ -85,6 +85,7 @@ lasvdinv <- function(design, resp, xi, nstarts, nmc, n0, nn,
     post <- exp(logpost)
     idx <- sample(1:ndesign,nstarts,replace=TRUE,prob=post)
     xstarts <- design[idx,,drop=FALSE]
+    poststarts <- logpost[idx]
     nsample <- floor((nmc-nburn)/nthin)
     funname <- if(liktype=="naive") "lagpNaiveInv" else "lagpProfileInv"
     out <- .C(funname,as.integer(ndesign), as.integer(nparam),
@@ -94,7 +95,7 @@ lasvdinv <- function(design, resp, xi, nstarts, nmc, n0, nn,
               as.integer(every), as.integer(nthread), as.double(frac),
               as.double(gstart), as.double(kersd), as.double(xi),
               as.double(t(design)), as.double(resp), as.double(t(xstarts)),
-              as.double(post), as.double(lb), as.double(ub),
+              as.double(poststarts), as.double(lb), as.double(ub),
               samples=double(nstarts*nparam*nsample))
     samples <- matrix(out$samples,nrow=nstarts*nsample,byrow=TRUE)
     return(samples)

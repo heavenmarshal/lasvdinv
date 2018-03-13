@@ -36,7 +36,8 @@ public:
     likelihoodBase(nparam_), ndesign(ndesign_), tlen(tlen_), n0(n0_), nn(nn_),
     nfea(nfea_), resvdThres(resvdThres_), every(every_), frac(frac_), gstart(gstart_),
     xi(xi_), design(design_), resp(resp_) {};
-  virtual double evalLogLikelihood(const double* param){return 0.0;};
+  virtual double evalLogLikelihood(double* param){
+      return 0.0;};
 
 protected:
   unsigned int ndesign;
