@@ -23,8 +23,8 @@ class kernelBase{
 public:
     kernelBase(int nparam_): nparam(nparam_), generator(time(NULL)){};
     virtual ~kernelBase(){};
-    virtual void propose(const double* from, double* to){};
-    virtual double logDensity(const double* from, const double* to){return 0.0;};
+    virtual void propose(double* from, double* to){};
+    virtual double logDensity(double* from, double* to){return 0.0;};
 protected:
     int nparam;
     std::default_random_engine generator;
@@ -34,8 +34,8 @@ class likelihoodBase{
 public:
   likelihoodBase(int nparam_): nparam(nparam_){};
   virtual ~likelihoodBase(){};
-    virtual double evalLogLikelihood(double* param){
-	return 0.0;};
+  virtual double evalLogLikelihood(double* param){
+    return 0.0;};
 protected:
   int nparam;
 };
@@ -72,9 +72,11 @@ private:
 class mcmcBase{
 public:
   mcmcBase(int nparam_,int nmc_, int nburn_, int nthin_,
-	   double* x0, double* post0,
-	   priorBase& prior_, likelihoodBase& likelihood_,
-	   kernelBase& kernel_);
+	   double* x0, double post0,
+	   priorBase* prior_, likelihoodBase* likelihood_,
+	   kernelBase* kernel_);
+  mcmcBase(int nparam_, int nmc_, int nburn_, int nthin_,
+	   double* x0, double post0, priorBase *prior_);
   virtual ~mcmcBase();
   virtual void run();
   void getSample(double* output);
@@ -88,16 +90,16 @@ protected:
   double clogpost;
   double* current;
   double** sample;
-    std::default_random_engine generator;
-  priorBase& prior;
-  likelihoodBase& likelihood;
-  kernelBase& kernel;
+  std::default_random_engine generator;
+  priorBase* prior;
+  likelihoodBase* likelihood;
+  kernelBase* kernel;
   double evalLogPosterior(double *param);
 };
 class normalKernel: public kernelBase{
 public:
   normalKernel(int nparam_, double sigma_): kernelBase(nparam_), sigma(sigma_){};
-  double logDensity(const double* from, const double *to)
+  double logDensity(double* from, double *to)
   {
     int i;
     double tmp, logden;
@@ -108,7 +110,7 @@ public:
     logden += 0.5*tmp/sigma/sigma;
     return logden;
   }
-  void propose(const double* from, double* to);
+  void propose(double* from, double* to);
 private:
   double sigma;
 };

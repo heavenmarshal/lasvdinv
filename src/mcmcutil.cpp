@@ -12,22 +12,27 @@ extern "C"{
 }
 
 mcmcBase::mcmcBase(int nparam_,int nmc_, int nburn_, int nthin_,
-		   double* x0, double* post0,
-		   priorBase& prior_, likelihoodBase& likelihood_,
-		   kernelBase& kernel_):
-  nparam(nparam_), nmc(nmc_), nburn(nburn_), nthin(nthin_),naccept(0),
+		   double* x0, double post0,
+		   priorBase* prior_, likelihoodBase* likelihood_,
+		   kernelBase* kernel_):
+  nparam(nparam_), nmc(nmc_), nburn(nburn_), nthin(nthin_),naccept(0),clogpost(post0),
   generator(time(NULL)), prior(prior_), likelihood(likelihood_), kernel(kernel_)
 {
   nsample = (nmc - nburn)/nthin;
   assert(x0 != NULL);
   current = new_dup_vector(x0, nparam);
-  if(post0 == NULL)
-    clogpost = evalLogPosterior(current);
-  else
-    clogpost = *post0;
   sample = new_matrix(nsample,nparam);
 }
-
+mcmcBase::mcmcBase(int nparam_, int nmc_, int nburn_, int nthin_,
+		   double* x0, double post0, priorBase* prior_):
+  nparam(nparam_), nmc(nmc_), nburn(nburn_), nthin(nthin_), naccept(0),clogpost(post0),
+  generator(time(NULL)), prior(prior_)
+{
+  nsample = (nmc - nburn)/nthin;
+  assert(x0 != NULL);
+  current = new_dup_vector(x0, nparam);
+  sample = new_matrix(nsample,nparam);
+}
 mcmcBase::~mcmcBase()
 {
   free(current);
@@ -37,8 +42,8 @@ mcmcBase::~mcmcBase()
 double mcmcBase::evalLogPosterior(double* param)
 {
   double post;
-  post = likelihood.evalLogLikelihood(param);
-  post += prior.evalLogPrior(param);
+  post = likelihood->evalLogLikelihood(param);
+  post += prior->evalLogPrior(param);
   return post;
 }
 void mcmcBase::run()
@@ -50,13 +55,10 @@ void mcmcBase::run()
   proposal = new_vector(nparam);
   for(i=0, j=-nburn, k=0; i<nmc; ++i, ++j)
   {
-    kernel.propose(current,proposal); // sampling a proposal parameter
+    kernel->propose(current,proposal); // sampling a proposal parameter
     logpost = evalLogPosterior(proposal);
-    logaccprob = logpost + kernel.logDensity(proposal,current);
-    logaccprob -= clogpost + kernel.logDensity(current,proposal);
-    // std::cout<<"clogpost= "<<clogpost<<std::endl;
-    // std::cout<<"logpost= "<<logpost<<std::endl;
-    // std::cout<<"logaccprob= "<<logaccprob<<std::endl;
+    logaccprob = logpost + kernel->logDensity(proposal,current);
+    logaccprob -= clogpost + kernel->logDensity(current,proposal);
     logru = distribution(generator);
     logru = log(logru);
     if(logru < logaccprob)	// accept
@@ -79,7 +81,7 @@ void mcmcBase::getSample(double *output)
   dupv(output,sample[0],slen);
 }
 
-void normalKernel::propose(const double* from, double* to)
+void normalKernel::propose(double* from, double* to)
 {
   int i;
   std::normal_distribution<double> distribution(0.0,sigma);
