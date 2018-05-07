@@ -52,7 +52,8 @@ void mcmcNewton::evalgradhessian(double *param)
 {
   if(lasvdgp == NULL) return;
   int nbas, i, j, k, p, n;
-  double  dc2dx2, *btdev, *kiy, *d;
+  double  ci, dci, dev, dlen, dc2dx2, btdevdci, btdevdcj;
+  double *btdev, *kiy, *d;
   double **corr, **X, **dcdx;
 
   n = lasvdgp->n0;
@@ -62,13 +63,19 @@ void mcmcNewton::evalgradhessian(double *param)
   dcdx = new_matrix(nparam,nbas);
   linalg_dgemv(CblasTrans, tlen, nbas, -1.0, &(lasvdgp->basis), tlen,
 	       xi, 1, 0.0, btdev, 1);
+  dev = linalg_ddot(tlen, xi, 1, xi, 1);
+  dlen = (double) tlen;
   for(i = 0; i < nbas; ++i)
   {
     X = lasvdgp->gpseps[i]->X;
     d = lasvdgp->gpseps[i]->d;
     kiy = lasvdgp->gpseps[i]->KiZ;
     covar_sep(nparam, &param, 1, X, n, d,&corr[i]);
-    btdev[i] += sq(lasvdgp->reds[i])*linalg_ddot(n,corr[i],1,kiy,1);
+    ci = linalg_ddot(n,corr[i],1,kiy,1);
+    dev += 2.0*ci*btdev[i];
+    dci = sq(lasvdgp->reds[i])*ci;
+    btdev[i] += dci;
+    dev += dci*ci;
   }
   for(i=0; i<nparam; ++i)
   {
@@ -103,17 +110,24 @@ void mcmcNewton::evalgradhessian(double *param)
 	hess[i][j] += btdev[k]*dc2dx2;
       }
     }
+    grad[i] *= 0.5*dlen/dev;
   }
   for(i=0; i<nparam; ++i)
   {
-      for(k=0; k<nbas; ++k)
-	  hess[i][i] += sq(lasvdgp->reds[k])*sq(dcdx[i][k]);
-      for(j=0; j<i; ++j)
-      {
-	  for(k = 0; k < nbas; ++k)
-	      hess[i][j] += sq(lasvdgp->reds[k])* dcdx[i][k] * dcdx[j][k];
-	  hess[j][i] = hess[i][j];
-      }
+    btdevdci = linalg_ddot(nbas, btdev, 1, dcdx[i], 1);
+    hess[i][i] += sq(btdevdci)/dev;
+    for(k=0; k<nbas; ++k)
+      hess[i][i] += sq(lasvdgp->reds[k])*sq(dcdx[i][k]);
+    hess[i][i] *= 0.5*dlen/dev;
+    for(j=0; j<i; ++j)
+    {
+      btdevdcj = linalg_ddot(nbas, btdev, 1, dcdx[j], 1);
+      hess[i][j] += btdevdci*btdevdcj/dev;
+      for(k = 0; k < nbas; ++k)
+	hess[i][j] += sq(lasvdgp->reds[k])* dcdx[i][k] * dcdx[j][k];
+      hess[i][j] *= 0.5*dlen/dev;
+      hess[j][i] = hess[i][j];
+    }
   }
   free(btdev);
   delete_matrix(corr);
@@ -132,7 +146,7 @@ void mcmcNewton::accept()
 }
 void mcmcNewton::run()
 {
-    int i, j, k;
+  int i, j, k;
   double logpost, logaccprob, logru;
   double *proposal;
   std::uniform_real_distribution<double> distribution(0.0,1.0);
@@ -143,18 +157,18 @@ void mcmcNewton::run()
   {
     kerneln -> procGradHess(cgrad,chess);
     kerneln -> propose(current,proposal);
-    std::cout<<"proposal= [";
-    for(int p = 0; p <nparam-1; ++p) std::cout<<proposal[p]<<',';
-    std::cout<<proposal[nparam-1]<<']'<<std::endl;
+    // std::cout<<"proposal= [";
+    // for(int p = 0; p <nparam-1; ++p) std::cout<<proposal[p]<<',';
+    // std::cout<<proposal[nparam-1]<<']'<<std::endl;
     logaccprob = -clogpost - kerneln->logDensity(current, proposal);
-    std::cout<<"clogpost= " << clogpost<<std::endl;
-    std::cout<<"forward= "<< kerneln->logDensity(current, proposal)<<std::endl;
+    // std::cout<<"clogpost= " << clogpost<<std::endl;
+    // std::cout<<"forward= "<< kerneln->logDensity(current, proposal)<<std::endl;
     fitlasvdgp(proposal);
     logpost = evalLogPosterior(proposal);
     kerneln -> procGradHess(grad,hess);
     logaccprob += logpost + kerneln ->logDensity(proposal,current);
-    std::cout<<"logpost= "<<logpost<<std::endl;
-    std::cout<<"backward= "<<kerneln ->logDensity(proposal,current)<<std::endl;
+    // std::cout<<"logpost= "<<logpost<<std::endl;
+    // std::cout<<"backward= "<<kerneln ->logDensity(proposal,current)<<std::endl;
     
     logru = distribution(generator);
     logru = log(logru);

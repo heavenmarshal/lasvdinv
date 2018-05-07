@@ -128,13 +128,14 @@ extern "C"{
     free(design);
     free(resp);
   }
-  void lagpNewtonInv(unsigned int* ndesign_, unsigned int *nparam_, unsigned int *nstarts_,
-		     unsigned int* nmc_, unsigned int *nburn_, unsigned int *nthin_,
-		     unsigned int *tlen_, unsigned int* n0_, unsigned int *nn_,
-		     unsigned int *nfea_, unsigned int* resvdThres_, unsigned int *every_,
-		     unsigned int *nthread_, double *frac_, double* gstart_, double* kerthres_, double *xi_,
-		     double *design_, double *resp_, double *xstarts_, double* poststarts_, double* lb_,
-		     double *ub_, double *samples)
+  void lagpEigenNewtonInv(unsigned int* ndesign_, unsigned int *nparam_, unsigned int *nstarts_,
+			  unsigned int* nmc_, unsigned int *nburn_, unsigned int *nthin_,
+			  unsigned int *tlen_, unsigned int* n0_, unsigned int *nn_,
+			  unsigned int *nfea_, unsigned int* resvdThres_, unsigned int *every_,
+			  unsigned int *nthread_, double *frac_, double* gstart_, double* kerthres_,
+			  double* kersdfrac_, double *xi_,
+			  double *design_, double *resp_, double *xstarts_, double* poststarts_, double* lb_,
+			  double *ub_, double *samples)
   {
     unsigned int mxth, ndesign, nparam, tlen, nsample, slen;
     double **design, **resp, **xstarts;
@@ -171,7 +172,7 @@ extern "C"{
       {
 	naivelikelihoodNewton likelihood(nparam, tlen, xi_);
 	uniformPrior prior(nparam, lb_, ub_);
-	normalkernelNewton kernel(nparam, *kerthres_);
+	eigenkernelNewton kernel(nparam, *kerthres_, *kersdfrac_);
 	mcmcNewton mcmc(nparam, *nmc_, *nburn_, *nthin_,
 			ndesign, tlen, *n0_, *nn_, *nfea_,
 			*resvdThres_, *every_, *frac_, *gstart_,
@@ -187,4 +188,5 @@ extern "C"{
     free(design);
     free(resp);
   }
+
 }

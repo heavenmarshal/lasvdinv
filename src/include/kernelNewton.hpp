@@ -14,25 +14,30 @@ public:
   virtual void procGradHess(double *grad, double **hess){}
 };
 
-class normalkernelNewton: public kernelNewton{
+
+class eigenkernelNewton: public kernelNewton{
 public:
-  normalkernelNewton(int nparam_, double thres_): kernelNewton(nparam_), thres(thres_){
-    moffset = new_vector(nparam);
-    precision = new_matrix(nparam,nparam);
-    cholu = new_matrix(nparam, nparam);
-  }
-  ~normalkernelNewton(){
+  eigenkernelNewton(int nparam_, double thres_, double sdfrac_):
+    kernelNewton(nparam_), thres(thres_), sdfrac(sdfrac_)
+    {
+      moffset = new_vector(nparam);
+      values = new_vector(nparam);
+      vectors = new_matrix(nparam, nparam);
+    }
+  ~eigenkernelNewton(){
     free(moffset);
-    delete_matrix(precision);
-    delete_matrix(cholu);
+    free(values);
+    delete_matrix(vectors);
   }
   void propose(double* from, double* to);
   double logDensity(double* from, double *to);
   void procGradHess(double* grad, double **hess);
 private:
   double thres;
+  double sdfrac;
   double *moffset;
-  double **precision;		// precision matrix
-  double **cholu; 		// upper triangular matrix of cholesky of precision
+  double *values;		// truncated eigenvalues of the hessian matrix
+  double **vectors; 		// eigenvectors of the hessian matrix
 };
+
 #endif

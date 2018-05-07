@@ -106,7 +106,7 @@ lasvdnewtoninv <- function(design, resp, xi, nstarts, nmc, n0, nn,
                            nthin=1,resvdThres = min(5, nn-n0),
                            every = min(5,nn-n0), frac = .95, gstart = 0.0001,
                            nthread = 4, lb = rep(0,ncol(design)), ub = rep(1,ncol(design)),
-                           kerthres=1e-5)
+                           kerthres=1e-5,kersdfrac=1.0)
 {
     ndesign <-  nrow(design)
     nparam <-  ncol(design)
@@ -120,12 +120,12 @@ lasvdnewtoninv <- function(design, resp, xi, nstarts, nmc, n0, nn,
     xstarts <- design[idx,,drop=FALSE]
     poststarts <- logpost[idx]
     nsample <- floor((nmc-nburn)/nthin)
-    out <- .C("lagpNewtonInv",as.integer(ndesign), as.integer(nparam),
+    out <- .C("lagpEigenNewtonInv",as.integer(ndesign), as.integer(nparam),
               as.integer(nstarts), as.integer(nmc), as.integer(nburn),
               as.integer(nthin), as.integer(tlen), as.integer(n0),
               as.integer(nn), as.integer(nfea), as.integer(resvdThres),
               as.integer(every), as.integer(nthread), as.double(frac),
-              as.double(gstart), as.double(kerthres), as.double(xi),
+              as.double(gstart), as.double(kerthres), as.double(kersdfrac),as.double(xi),
               as.double(t(design)), as.double(resp), as.double(t(xstarts)),
               as.double(poststarts), as.double(lb), as.double(ub),
               samples=double(nstarts*nparam*nsample))
