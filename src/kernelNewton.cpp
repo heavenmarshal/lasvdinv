@@ -12,11 +12,6 @@ void eigenkernelNewton::procGradHess(double *grad, double **hess)
 {
   int i, info, m;
   double val, *worker;
-  // std::cout<<"hessian"<<std::endl;
-  // printMatrix(hess, nparam, nparam, stdout);
-  // std::cout<<"grad"<<std::endl;
-  // printVector(grad,nparam,stdout,HUMAN);
-
   worker = new_vector(nparam);
   info = linalg_dsyevr(CblasBoth, CblasAll, nparam, hess, nparam,
 		       0.0, 0.0, 0, 0, 0.0, &m, values, vectors, nparam);
@@ -33,8 +28,6 @@ void eigenkernelNewton::procGradHess(double *grad, double **hess)
     worker[i] /= values[i];
   linalg_dgemv(CblasNoTrans, nparam, nparam, 1.0, vectors, nparam,
 	       worker, 1, 0.0, moffset, 1);
-  // std::cout<<"moffset"<<std::endl;
-  // printVector(moffset,nparam,stdout,HUMAN);
   free(worker);
 }
 void eigenkernelNewton::propose(double* from, double* to)
@@ -43,7 +36,7 @@ void eigenkernelNewton::propose(double* from, double* to)
   double *nrand, *worker;
   std::normal_distribution<double> distribution(0.0,1.0);
   dupv(to,from,nparam);
-  // linalg_daxpy(nparam, -1.0, moffset, 1, to, 1);
+  linalg_daxpy(nparam, -1.0, moffset, 1, to, 1);
   nrand = new_vector(nparam);
   worker = new_vector(nparam);
   for(i = 0; i < nparam; ++i)
@@ -54,8 +47,6 @@ void eigenkernelNewton::propose(double* from, double* to)
     worker[i] /= sqrt(values[i]);
   linalg_dgemv(CblasNoTrans, nparam, nparam, 1.0, vectors, nparam,
 	       worker, 1, 0.0, nrand, 1);
-  // std::cout<<"nrand"<<std::endl;
-  // printVector(nrand,nparam,stdout,HUMAN);
   linalg_daxpy(nparam, sdfrac, nrand, 1, to, 1);
   free(worker);
   free(nrand);
@@ -67,7 +58,7 @@ double eigenkernelNewton::logDensity(double *from, double *to)
   worker = new_dup_vector(to, nparam);
   dev = new_vector(nparam);
   linalg_daxpy(nparam, -1.0, from, 1, worker, 1);
-  // linalg_daxpy(nparam, 1.0, moffset, 1, worker, 1);
+  linalg_daxpy(nparam, 1.0, moffset, 1, worker, 1);
   linalg_dgemv(CblasTrans, nparam, nparam, 1.0, vectors, nparam,
 	       worker, 1, 0.0, dev, 1);
   for(i=0; i<nparam; ++i)

@@ -132,3 +132,36 @@ lasvdnewtoninv <- function(design, resp, xi, nstarts, nmc, n0, nn,
     samples <- matrix(out$samples,nrow=nstarts*nsample,byrow=TRUE)
     return(samples)
 }
+
+lagpscalarnewtoninv <- function(design, resp, xi, nstarts, nmc, n0, nn,
+                                nfea = min(1000,nrow(design)), nburn=0,
+                                nthin=1, every = min(5,nn-n0), gstart = 0.0001,
+                                nthread = 4, lb = rep(0,ncol(design)),
+                                ub = rep(1,ncol(design)),
+                                kerthres=1e-5,kersdfrac=1.0)
+{
+    ndesign <-  nrow(design)
+    nparam <-  ncol(design)
+    tlen <- nrow(resp)
+    if(ncol(resp) != ndesign) stop("size response matrix does not aggree with design matrix!")
+    diam <-  min(ub-lb)
+    if(diam<0) stop("misspecified the upper or lower bound of the design domain")
+    logpost <- apply(resp,2,evallogpost,xi,tlen)
+    nlogpost <- -logpost
+    post <- exp(logpost)
+    idx <- sample(1:ndesign,nstarts,replace=TRUE,prob=post)
+    xstarts <- design[idx,,drop=FALSE]
+    poststarts <- logpost[idx]
+    nsample <- floor((nmc-nburn)/nthin)
+    out <- .C("lagpScalarNewtonInv",as.integer(ndesign), as.integer(nparam),
+              as.integer(nstarts), as.integer(nmc), as.integer(nburn),
+              as.integer(nthin),  as.integer(n0),
+              as.integer(nn), as.integer(nfea),
+              as.integer(every), as.integer(nthread),
+              as.double(gstart), as.double(kerthres), as.double(kersdfrac),
+              as.double(t(design)), as.double(nlogpost), as.double(t(xstarts)),
+              as.double(poststarts), as.double(lb), as.double(ub),
+              samples=double(nstarts*nparam*nsample))
+    samples <- matrix(out$samples,nrow=nstarts*nsample,byrow=TRUE)
+    return(samples)
+}

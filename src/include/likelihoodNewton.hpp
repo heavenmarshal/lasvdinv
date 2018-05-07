@@ -19,4 +19,13 @@ private:
   int tlen;
   double *xi;
 };
+class scalarlikelihoodNewton: public likelihoodNewton{
+public:
+  scalarlikelihoodNewton(int nparam_):
+    likelihoodNewton(nparam_){}
+  virtual ~scalarlikelihoodNewton(){}
+  double evalLogLikelihood(double* param, double* pmean, double *ps2){
+    return -(*pmean);
+  }
+};
 #endif
