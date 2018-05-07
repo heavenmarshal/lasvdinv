@@ -25,10 +25,7 @@ private:
   GPsep *gpsep;
   likelihoodNewton *likelihoodn;
   kernelNewton *kerneln;
-  static void selectpoint(GPsep* gpsep, int nparam, int nfea, int *feaidx,
-			  double *param, double **design, double *resp);
   void fitlagp(double *param);
-  void evalgradhessian(double *param);
   double evalLogPosterior(double *param);
   void accept();
 };
