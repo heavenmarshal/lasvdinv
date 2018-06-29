@@ -11,7 +11,7 @@ public:
     every(every_), gstart(gstart_), design(design_), resp(resp_) {};
   double evalLogLikelihood(double *param);
 private:
-  unsigned int ndesign, nparam, n0, nn, nfea, every;
+  unsigned int ndesign, n0, nn, nfea, every;
   double gstart, **design, *resp;
 };
 #endif

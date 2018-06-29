@@ -1,4 +1,5 @@
 #include "lagpScalarLikelihood.hpp"
+#include <iostream>
 extern "C"{
   #include "fitlagpsep.h"
   #include "gp_sep.h"

@@ -1,70 +1,18 @@
-## assume the input domain is [0,1]^m
-## lasvdinv <- function(design, resp, yobs, nn, n0=ceiling(0.5*nn),
-##                      npurs = ceiling(.05*nrow(design)), nclose = 1,
-##                      nneig=4*ncol(design),
-##                      nfea = min(1000,nrow(design)), nsvd=nn,
-##                      nadd=1, frac=.95, gstart=0.001,
-##                      resvdThres=min(5, nn-n0), every=min(5, nn-n0),
-##                      maxit=100, verb=0, nthread=4)
-## {
-##     N <- nrow(design)
-##     m <- ncol(design)
-##     if(ncol(resp) != N) stop("number of design points and responses must be consistent")
-##     tlen <- nrow(resp)
-##     if(length(yobs) != tlen) stop("inconsistent number of timepoints in ybos and resp")
-
-##     eucdist <- sqrt(apply((resp-yobs)^2,2,sum))
-##     centidx <- order(eucdist)[1:npurs]
-##     centers <- design[centidx,,drop=FALSE]
-##     cl <- makeCluster(nthread)
-##     ret <- tryCatch(parApply(cl,centers,1, evalesl2, design, resp, yobs, N,
-##                              m, tlen, nn, n0, nclose, nneig, nfea, nsvd, nadd,
-##                              frac, gstart, resvdThres, every, maxit, verb),
-##                     finally=stopCluster(cl))
-##     xopt <- matrix(unlist(sapply(ret,`[`,"xopt")),ncol=m,byrow=TRUE)
-##     esl2opt <- unlist(sapply(ret,`[`,"esl2opt"))
-##     optidx <- which.min(esl2opt)
-##     bestx <- xopt[optidx,]
-##     ret <- list(xopt=xopt,esl2opt=esl2opt,bestx=bestx)
-##     return(ret)
-## }
-
-## lasvdinvms <- function(design, resp, yobs, nn, n0=ceil(0.5*nn),
-##                        npurs = ceil(.05*nrow(design)), nclose = 1,
-##                        nneig=4*ncol(design),
-##                        nfea = min(1000,nrow(design)), nsvd=nn,
-##                        nadd=1, frac=.95, gstart=0.001,
-##                        resvdThres=min(5, nn-n0), every=min(5, nn-n0),
-##                        numstarts=5, maxit=100, verb=0, nthread=4)
-## {
-##     N <- nrow(design)
-##     m <- ncol(design)
-##     if(ncol(resp) != N) stop("number of design points and responses must be consistent")
-##     tlen <- nrow(resp)
-##     if(length(yobs) != tlen) stop("inconsistent number of timepoints in ybos and resp")
-
-##     eucdist <- sqrt(apply((resp-yobs)^2,2,sum))
-##     centidx <- order(eucdist)[1:npurs]
-##     centers <- design[centidx,,drop=FALSE]
-##     cl <- makeCluster(nthread)
-##     ret <- tryCatch(parApply(cl,centers,1, evalesl2ms, design, resp, yobs, N,
-##                              m, tlen, nn, n0, nclose, nneig, nfea, nsvd, nadd,
-##                              frac, gstart, resvdThres, every, numstarts, maxit, verb),
-##                     finally=stopCluster(cl))
-##     xopt <- matrix(unlist(sapply(ret,`[`,"xopt")),ncol=m,byrow=TRUE)
-##     esl2opt <- unlist(sapply(ret,`[`,"esl2opt"))
-##     optidx <- which.min(esl2opt)
-##     bestx <- xopt[optidx,]
-##     ret <- list(xopt=xopt,esl2opt=esl2opt,bestx=bestx)
-##     return(ret)
-## }
 evallogpost <- function(y,xi,tlen)
 {
     dev <- drop(crossprod(y-xi))/tlen
     loglik <- -0.5*log(2*pi)-0.5*tlen
     loglik <- loglik - 0.5 * tlen* log(dev)
 }
-
+scalarlogpost <- function(y,xi,tlen)
+{
+    dev <- drop(crossprod(y-xi))
+    loglik <- -0.5*tlen*log(dev)
+}
+scalardev <- function(y,xi,tlen)
+{
+    dev <- drop(crossprod(y-xi))
+}
 lasvdinv <- function(design, resp, xi, nstarts, nmc, n0, nn,
                      liktype=c("naive","profile"), nfea = min(1000,nrow(design)),
                      nsvd=nn, nburn=0, nthin=1,resvdThres = min(5, nn-n0),
@@ -135,8 +83,8 @@ lasvdnewtoninv <- function(design, resp, xi, nstarts, nmc, n0, nn,
 
 lagpscalarnewtoninv <- function(design, resp, xi, nstarts, nmc, n0, nn,
                                 nfea = min(1000,nrow(design)), nburn=0,
-                                nthin=1, every = min(5,nn-n0), gstart = 0.0001,
-                                nthread = 4, lb = rep(0,ncol(design)),
+                                nthin=1, every = min(5,nn-n0), islog=TRUE,
+                                gstart = 0.0001, nthread = 4, lb = rep(0,ncol(design)),
                                 ub = rep(1,ncol(design)),
                                 kerthres=1e-5,kersdfrac=1.0)
 {
@@ -146,8 +94,8 @@ lagpscalarnewtoninv <- function(design, resp, xi, nstarts, nmc, n0, nn,
     if(ncol(resp) != ndesign) stop("size response matrix does not aggree with design matrix!")
     diam <-  min(ub-lb)
     if(diam<0) stop("misspecified the upper or lower bound of the design domain")
-    logpost <- apply(resp,2,evallogpost,xi,tlen)
-    nlogpost <- -logpost
+    logpost <- apply(resp,2,scalarlogpost,xi,tlen)
+    resp <- if(islog) -logpost else apply(resp,2,scalardev,xi,tlen)
     post <- exp(logpost)
     idx <- sample(1:ndesign,nstarts,replace=TRUE,prob=post)
     xstarts <- design[idx,,drop=FALSE]
@@ -157,9 +105,9 @@ lagpscalarnewtoninv <- function(design, resp, xi, nstarts, nmc, n0, nn,
               as.integer(nstarts), as.integer(nmc), as.integer(nburn),
               as.integer(nthin),  as.integer(n0),
               as.integer(nn), as.integer(nfea),
-              as.integer(every), as.integer(nthread),
+              as.integer(every), as.integer(tlen), as.integer(islog), as.integer(nthread),
               as.double(gstart), as.double(kerthres), as.double(kersdfrac),
-              as.double(t(design)), as.double(nlogpost), as.double(t(xstarts)),
+              as.double(t(design)), as.double(resp), as.double(t(xstarts)),
               as.double(poststarts), as.double(lb), as.double(ub),
               samples=double(nstarts*nparam*nsample))
     samples <- matrix(out$samples,nrow=nstarts*nsample,byrow=TRUE)

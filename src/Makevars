@@ -1,8 +1,6 @@
-LAGP_PATH = `echo 'library(laGP); cat(system.file(package="laGP",mustWork=TRUE))'\
-| "${R_HOME}/bin/R" --vanilla --slave`/libs/laGP.so
 LASVDGP_PATH = `echo 'library(lasvdgpnovo); cat(system.file(package="lasvdgpnovo",mustWork=TRUE))'\
 | "${R_HOME}/bin/R" --vanilla --slave`/libs/lasvdgpnovo.so
 CXX_STD = CXX11
-PKG_CXXFLAGS = -I include $(SHLIB_OPENMP_CFLAGS)
-PKG_CFLAGS = -I include
-PKG_LIBS = ${LAGP_PATH} ${LASVDGP_PATH} ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS}
+PKG_CXXFLAGS = -g -Wall -I include $(SHLIB_OPENMP_CFLAGS)
+PKG_CFLAGS = -g -Wall -I include
+PKG_LIBS = ${LASVDGP_PATH} ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS}

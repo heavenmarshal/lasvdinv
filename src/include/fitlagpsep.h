@@ -8,4 +8,5 @@ GPsep* fitlagpsep(unsigned int nparam, unsigned int ndesign, unsigned int n0,
 
 void scalargpgradhess(GPsep* gpsep, int nparam, double *param,
 		      double *grad, double **hess);
+void transloggradhess(int nparam, int tlen, double fval, double *grad, double **hess);
 #endif

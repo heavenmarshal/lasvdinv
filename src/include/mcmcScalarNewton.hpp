@@ -11,13 +11,14 @@ class mcmcScalarNewton: public mcmcBase{
 public:
   mcmcScalarNewton(int nparam_, int nmc_, int nburn_, int nthin_, unsigned int ndesign_,
 		   unsigned int n0_, unsigned int nn_, unsigned int nfea_,
-		   unsigned int every_, double gstart_, double **design_,
+		   unsigned int every_, unsigned int tlen_, unsigned int islog_,
+		   double gstart_, double **design_,
 		   double *resp_, double *x0, double post0, priorBase *prior_,
 		   likelihoodNewton *likelihood_, kernelNewton *kernel_);
   ~mcmcScalarNewton();
   void run();
 private:
-  unsigned int ndesign, n0, nn, nfea, every;
+  unsigned int ndesign, n0, nn, nfea, every, tlen, islog;
   double gstart, pmean, ps2;
   double **design, *resp;
   double *grad, *cgrad;

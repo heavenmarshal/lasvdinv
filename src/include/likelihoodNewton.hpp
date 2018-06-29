@@ -1,5 +1,6 @@
 #ifndef __LIKELIHOODNEWTON_HPP__
 #define __LIKELIHOODNEWTON_HPP__
+#include <cmath>
 #include "mcmcutil.hpp"
 
 class likelihoodNewton: public likelihoodBase{
@@ -21,11 +22,17 @@ private:
 };
 class scalarlikelihoodNewton: public likelihoodNewton{
 public:
-  scalarlikelihoodNewton(int nparam_):
-    likelihoodNewton(nparam_){}
+  scalarlikelihoodNewton(int nparam_, unsigned int tlen_, unsigned int islog_):
+    likelihoodNewton(nparam_),tlen(tlen_), islog(islog_){};
   virtual ~scalarlikelihoodNewton(){}
   double evalLogLikelihood(double* param, double* pmean, double *ps2){
-    return -(*pmean);
+    double loglik;
+    loglik = -(*pmean);
+    if(!islog)
+      loglik = -0.5* (double)tlen * log(-loglik);
+    return loglik;
   }
+private:
+  unsigned int tlen, islog;
 };
 #endif

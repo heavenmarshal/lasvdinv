@@ -75,7 +75,7 @@ GPsep* fitlagpsep(unsigned int nparam, unsigned int ndesign, unsigned int n0,
   dab[0] = dab1;
   dab[1] = dab2;
   gpsep = newGPsep(nparam, n0, subdes, subresp, dstart, gstart, 1);
-  jmleGPsep(gpsep, 100, ddmin, ddmax, grange, dab, gab, 0, &dits, &gits, &dconv, 1);
+  myjmleGPsep(gpsep, 100, ddmin, ddmax, grange, dab, gab, 0, &dits, &gits, &dconv);
   niter = nn-n0;
   for(i=1; i<=niter; ++i)
   {
@@ -86,13 +86,14 @@ GPsep* fitlagpsep(unsigned int nparam, unsigned int ndesign, unsigned int n0,
       dab[1] = dab2;
       const_vector(ddmin,dmin,nparam);
       const_vector(ddmax,dmax,nparam);
-      jmleGPsep(gpsep, 100, ddmin, ddmax, grange, dab, gab, 0, &dits, &gits, &dconv, 1);
+      myjmleGPsep(gpsep, 100, ddmin, ddmax, grange, dab, gab, 0, &dits, &gits, &dconv);
     }
   }
   delete_matrix(subdes);
   free(subresp);
   free(ddmin);
   free(ddmax);
+  free(feaidx);
   return gpsep;
 }
 
@@ -128,4 +129,28 @@ void scalargpgradhess(GPsep* gpsep, int nparam, double *param,
     }
   }
   free(corr);
+}
+void transloggradhess(int nparam, int tlen, double fval, double *grad, double **hess)
+{
+
+  int i, j;
+  double gvali, gvalj, hval, dtlen = (double)tlen;
+  
+  for(i=0; i<nparam; ++i)
+  {
+    gvali = grad[i];
+    hval = 0.5 * dtlen * hess[i][i] /fval;
+    hval -= 0.5 * dtlen * gvali*gvali/fval/fval;
+    hess[i][i] = hval;
+    for(j=0; j<i; ++j)
+    {
+      gvalj = grad[j];
+      hval = 0.5 * dtlen * hess[i][j]/fval;
+      hval -= 0.5 * dtlen * gvali*gvalj/fval/fval;
+      hess[i][j] = hval;
+      hess[j][i] = hval;
+    }
+  }
+  for(i=0; i <nparam; ++i)
+    grad[i] *= 0.5*dtlen/fval;
 }

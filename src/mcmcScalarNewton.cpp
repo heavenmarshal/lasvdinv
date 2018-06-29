@@ -8,11 +8,11 @@ extern "C"{
 
 mcmcScalarNewton::mcmcScalarNewton(int nparam_, int nmc_, int nburn_, int nthin_, unsigned int ndesign_,
 				   unsigned int n0_, unsigned int nn_, unsigned int nfea_,
-				   unsigned int every_, double gstart_, double **design_,
-				   double *resp_, double *x0, double post0, priorBase *prior_,
+				   unsigned int every_, unsigned int tlen_, unsigned int islog_, double gstart_,
+				   double **design_, double *resp_, double *x0, double post0, priorBase *prior_,
 				   likelihoodNewton *likelihood_, kernelNewton *kernel_):
   mcmcBase(nparam_, nmc_, nburn_, nthin_, x0, post0, prior_, NULL, NULL), ndesign(ndesign_), n0(n0_),
-  nn(nn_), nfea(nfea_), every(every_), gstart(gstart_), design(design_), resp(resp_),
+  nn(nn_), nfea(nfea_), every(every_), tlen(tlen_), islog(islog_), gstart(gstart_), design(design_), resp(resp_),
   likelihoodn(likelihood_), kerneln(kernel_)
 {
   grad = new_vector(nparam);
@@ -39,6 +39,8 @@ void mcmcScalarNewton::fitlagp(double *param)
 		     every, param, design, resp, gstart);
   predGPsep_lite(gpsep, 1, &param, &pmean, &ps2, &df, NULL);
   scalargpgradhess(gpsep, nparam, param, grad, hess);
+  if(!islog)
+    transloggradhess(nparam, tlen, pmean, grad, hess);
   deleteGPsep(gpsep);
   gpsep=NULL;
 }

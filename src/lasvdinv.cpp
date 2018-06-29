@@ -194,7 +194,7 @@ extern "C"{
   void lagpScalarNewtonInv(unsigned int* ndesign_, unsigned int *nparam_, unsigned int *nstarts_,
 			   unsigned int* nmc_, unsigned int *nburn_, unsigned int *nthin_,
 			   unsigned int* n0_, unsigned int *nn_,
-			   unsigned int *nfea_, unsigned int *every_,
+			   unsigned int *nfea_, unsigned int *every_, unsigned int *tlen_, unsigned int *islog_,
 			   unsigned int *nthread_, double* gstart_, double* kerthres_,
 			   double* kersdfrac_,
 			   double *design_, double *resp_, double *xstarts_, double* poststarts_, double* lb_,
@@ -231,12 +231,12 @@ extern "C"{
 #endif
       for(i = start; i < *nstarts_; i+=step)
       {
-	scalarlikelihoodNewton likelihood(nparam);
+	scalarlikelihoodNewton likelihood(nparam,*tlen_, *islog_);
 	uniformPrior prior(nparam, lb_, ub_);
 	eigenkernelNewton kernel(nparam, *kerthres_, *kersdfrac_);
 	mcmcScalarNewton mcmc(nparam, *nmc_, *nburn_, *nthin_, ndesign, *n0_, *nn_,
-			      *nfea_, *every_, *gstart_, design, resp_, xstarts[i],
-			      poststarts_[i], &prior, &likelihood, &kernel);
+			      *nfea_, *every_, *tlen_, *islog_, *gstart_, design,
+			      resp_, xstarts[i], poststarts_[i], &prior, &likelihood, &kernel);
 	mcmc.run();
 	mcmc.getSample(samples+i*slen);
       }
@@ -249,11 +249,11 @@ extern "C"{
 
 
   void lagpScalarInv(unsigned int* ndesign_, unsigned int *nparam_, unsigned int *nstarts_,
-			   unsigned int* nmc_, unsigned int *nburn_, unsigned int *nthin_,
-			   unsigned int* n0_, unsigned int *nn_, unsigned int *nfea_,
-			   unsigned int *every_, unsigned int *nthread_, double* gstart_,
-			   double* kersd_, double *design_, double *resp_, double *xstarts_,
-			   double* poststarts_, double* lb_, double *ub_, double *samples)
+		     unsigned int* nmc_, unsigned int *nburn_, unsigned int *nthin_,
+		     unsigned int* n0_, unsigned int *nn_, unsigned int *nfea_,
+		     unsigned int *every_, unsigned int *nthread_, double* gstart_,
+		     double* kersd_, double *design_, double *resp_, double *xstarts_,
+		     double* poststarts_, double* lb_, double *ub_, double *samples)
   {
     unsigned int mxth, ndesign, nparam, nsample, slen;
     double **design, **xstarts;
