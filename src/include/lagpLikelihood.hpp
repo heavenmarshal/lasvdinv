@@ -73,7 +73,7 @@ public:
 			unsigned int resvdThres_, unsigned int every_, double frac_,
 			double gstart_, double *xi_, double **design_, double **resp_):
     lagpLikelihood(ndesign_, nparam_, tlen_, n0_, nn_, nfea_, resvdThres_, every_, frac_,
-			   gstart_, xi_, design_, resp_){};
+		   gstart_, xi_, design_, resp_){};
   virtual double evalLogLikelihood(double* param);
 protected:
   static double nloglikelihood(double sig2eps, void* info);
@@ -89,7 +89,7 @@ public:
 		       unsigned int resvdThres_, unsigned int every_, double noiseVar_,
 		       double frac_, double gstart_, double *xi_, double **design_, double **resp_):
     lagpProfileLikelihood(ndesign_, nparam_, tlen_, n0_, nn_, nfea_, resvdThres_, every_, frac_,
-			  gstart_, xi_, design_, resp), noiseVar(noiseVar_){};
+			  gstart_, xi_, design_, resp_), noiseVar(noiseVar_){};
   double evalLogLikelihood(double *param);
 private:
   double noiseVar;

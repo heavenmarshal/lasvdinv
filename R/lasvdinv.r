@@ -55,7 +55,6 @@ lasvdFixvarinv <- function(design, resp, xi, nstarts, nmc, n0, nn, noiseVar,
                            nthread = 4, lb = rep(0,ncol(design)), ub = rep(1,ncol(design)),
                            kersigfrac=.05)
 {
-    liktype <- match.arg(liktype)
     ndesign <-  nrow(design)
     nparam <-  ncol(design)
 
