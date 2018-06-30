@@ -122,8 +122,26 @@ double lagpProfileLikelihood::nloglikelihood(double sig2eps, void* info)
   for(i=0; i<nbas; ++i)
   {
     tvar = sig2+finfo->d2[i]*finfo->cs2[i];
-    loglik += log(tvar) + finfo->cs2[i] * sq(finfo->dev[i])/tvar/sig2;
+    loglik += log(tvar) - finfo->cs2[i] * sq(finfo->dev[i])/tvar/sig2; // changed sign here
   }
   loglik *= 0.5;
   return loglik;
+}
+
+double lagpFixvarLikelihood::evalLogLikelihood(double *param)
+{
+  double dtlen, loglik, upb, sig2esp;
+  double *xpred;
+  dtlen = (double) tlen;
+  xpred = new_dup_vector(param,nparam);
+  lasvdgp = newlasvdGP(xpred,design,resp,ndesign,nparam,tlen,nn,n0,
+		       nfea,nn,1,frac,gstart);
+  jmlelasvdGP(lasvdgp,100,0);
+  iterlasvdGP(lasvdgp,resvdThres,every,100,0);
+  lagpLikInfo info(lasvdgp->nbas);
+  predlasvdGPutil(lasvdgp, xpred, xi, &info);
+  loglik = nloglikelihood(noiseVar,(void*) &info)+0.5*LOG2PI;
+  deletelasvdGP(lasvdgp);
+  free(xpred);
+  return -loglik;
 }
