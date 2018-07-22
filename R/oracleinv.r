@@ -36,6 +36,7 @@ oraclemcmc <- function(xstart,poststart,xi,simulator,timepoints,nmc,nburn,nthin,
         logpost <- logpost+evallogprior(xnew,lb,ub)
         logaccprob <- logpost+nklogdensity(xnew,cx,sigma,nparam)
         logaccprob <- logaccprob-clogpost-nklogdensity(cx,xnew,sigma,nparam)
+        if(is.na(logaccprob)) logaccprob <- -Inf
         logru <- log(runif(1))
         if(logru<logaccprob)
         {
