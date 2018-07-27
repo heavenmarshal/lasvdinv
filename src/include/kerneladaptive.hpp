@@ -11,11 +11,11 @@ public:
     kernelBase(n0_), n0(n0_), eps(eps_), sval(sval_),
     sigma0(sigma0_), citer(0){
     covmat = new_zero_matrix(nparam,nparam);
-    lmat = new_matrix(nparam,nparam);
+    umat = new_matrix(nparam,nparam);
   };
-  ~kernelAdaptvie(){
+  ~kernelAdaptive(){
     delete_matrix(covmat);
-    delete_matrix(lmat);
+    delete_matrix(umat);
   };
   void updatecov(int niter, double **sample);
   void propose(double *from, double *to);
