@@ -8,7 +8,7 @@ class kernelAdaptive: public kernelBase{
 public:
   kernelAdaptive(int nparam_, int n0_, double eps_,
 		 double sval_, double sigma0_):
-    kernelBase(n0_), n0(n0_), eps(eps_), sval(sval_),
+    kernelBase(nparam_), n0(n0_), eps(eps_), sval(sval_),
     sigma0(sigma0_), citer(0){
     covmat = new_zero_matrix(nparam,nparam);
     umat = new_matrix(nparam,nparam);

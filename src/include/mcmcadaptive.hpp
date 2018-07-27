@@ -1,6 +1,7 @@
 #ifndef __MCMCADAPTIVE_HPP__
 #define __MCMCADAPTIVE_HPP__
-#icnlude "mcmcutil.hpp"
+#include "mcmcutil.hpp"
+#include "kerneladaptive.hpp"
 
 class mcmcAdaptive: public mcmcBase{
 public:

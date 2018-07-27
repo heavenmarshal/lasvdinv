@@ -467,7 +467,7 @@ extern "C"{
 	uniformPrior prior(nparam, lb_, ub_);
 	kernelAdaptive kernel(nparam, *adpthres_, *eps_, *sval_, *kersd);
 	mcmcAdaptive mcmc(nparam, *nmc_, *nburn_, *nthin_, xstarts[i], poststarts_[i],
-			  &prior, &profileLik, &kernel);
+			  &prior, &fixvarLik, &kernel);
 	mcmc.run();
 	mcmc.getSample(samples+i*slen);
       }
