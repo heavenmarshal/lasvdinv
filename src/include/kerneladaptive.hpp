@@ -1,0 +1,33 @@
+#ifndef __KERNELADAPTIVE_HPP__
+#define __KERNELADAPTIVE_HPP__
+#include "mcmcutil.hpp"
+extern "C"{
+  #include "matrix.h"
+}
+class kernelAdaptive: public kernelBase{
+public:
+  kernelAdaptive(int nparam_, int n0_, double eps_,
+		 double sval_, double sigma0_):
+    kernelBase(n0_), n0(n0_), eps(eps_), sval(sval_),
+    sigma0(sigma0_), citer(0){
+    covmat = new_zero_matrix(nparam,nparam);
+    lmat = new_matrix(nparam,nparam);
+  };
+  ~kernelAdaptvie(){
+    delete_matrix(covmat);
+    delete_matrix(lmat);
+  };
+  void updatecov(int niter, double **sample);
+  void propose(double *from, double *to);
+  double logDensity(double *from, double *to);
+private:
+  int n0;			// the threshold number of iterations for adaption
+  int citer;			// record current number of iterations
+  double eps, sval, sigma0;
+  double **covmat, **umat;
+  void regularpropose(double *from, double *to);
+  double regularlogDensity(double *from, double *to);
+  void adaptivepropose(double *from, double *to);
+  double adaptivelogDensity(double *from, double *to);
+};
+#endif
