@@ -100,18 +100,19 @@ void kernelAdaptive::adaptivepropose(double *from, double *to)
 }
 double kernelAdaptive::adaptivelogDensity(double *from, double *to)
 {
-  int i;
-  double logden, *tvec;
-  tvec = new_vector(nparam);
-  dupv(tvec,to,nparam);
-  linalg_daxpy(nparam,-1.0,from, 1, tvec,1);
-  linalg_dtrsm(CblasLeft, CblasUpper, CblasTrans, CblasNonUnit,
-	       nparam, 1, 1.0, umat, nparam, tvec, nparam);
-  logden = linalg_ddot(nparam, tvec, 1, tvec, 1);
-  logden += LOG2PI;
-  logden *= 0.5;
-  for(i=0; i<nparam; ++i)
-    logden += log(umat[i][i]);
-  free(tvec);
-  return -logden;
+  // int i;
+  // double logden, *tvec;
+  // tvec = new_vector(nparam);
+  // dupv(tvec,to,nparam);
+  // linalg_daxpy(nparam,-1.0,from, 1, tvec,1);
+  // linalg_dtrsm(CblasLeft, CblasUpper, CblasTrans, CblasNonUnit,
+  // 	       nparam, 1, 1.0, umat, nparam, tvec, nparam);
+  // logden = linalg_ddot(nparam, tvec, 1, tvec, 1);
+  // logden += LOG2PI;
+  // logden *= 0.5;
+  // for(i=0; i<nparam; ++i)
+  //   logden += log(umat[i][i]);
+  // free(tvec);
+  // return -logden;
+  return 0.0;
 }
