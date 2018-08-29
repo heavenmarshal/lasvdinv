@@ -9,6 +9,7 @@ extern "C"{
 }
 #define LOG2PI 1.83787706641
 #define SQ(x) ((x)*(x))
+class mcmcBase;
 
 class priorBase{
 public:
@@ -21,10 +22,11 @@ protected:
 };
 class kernelBase{
 public:
-    kernelBase(int nparam_): nparam(nparam_), generator(time(NULL)){};
-    virtual ~kernelBase(){};
-    virtual void propose(double* from, double* to){};
-    virtual double logDensity(double* from, double* to){return 0.0;};
+  kernelBase(int nparam_): nparam(nparam_), generator(time(NULL)){};
+  virtual ~kernelBase(){};
+  virtual void propose(double* from, double* to){};
+  virtual double logDensity(double* from, double* to){return 0.0;};
+  virtual void update(int iter, mcmcBase *mcobj){};
 protected:
     int nparam;
     std::default_random_engine generator;
@@ -71,21 +73,16 @@ private:
 };
 class mcmcBase{
 public:
-  mcmcBase(int nparam_,int nmc_, int nburn_, int nthin_,
-	   double* x0, double post0,
+  mcmcBase(int nparam_,int nmc_, double* x0, double post0,
 	   priorBase* prior_, likelihoodBase* likelihood_,
 	   kernelBase* kernel_);
-  mcmcBase(int nparam_, int nmc_, int nburn_, int nthin_,
-	   double* x0, double post0, priorBase *prior_);
   virtual ~mcmcBase();
   virtual void run();
+  double** getSample(){return sample;}
   void getSample(double* output);
 protected:
   int nparam;
   int nmc;
-  int nburn;
-  int nthin;
-  int nsample;
   int naccept;
   double clogpost;
   double* current;

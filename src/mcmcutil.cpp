@@ -11,27 +11,16 @@ extern "C"{
   #include "matrix.h"
 }
 
-mcmcBase::mcmcBase(int nparam_,int nmc_, int nburn_, int nthin_,
-		   double* x0, double post0,
+mcmcBase::mcmcBase(int nparam_,int nmc_, double* x0, double post0,
 		   priorBase* prior_, likelihoodBase* likelihood_,
 		   kernelBase* kernel_):
-  nparam(nparam_), nmc(nmc_), nburn(nburn_), nthin(nthin_),naccept(0),clogpost(post0),
-  generator(time(NULL)), prior(prior_), likelihood(likelihood_), kernel(kernel_)
+  nparam(nparam_), nmc(nmc_), naccept(0),clogpost(post0),
+  generator(time(NULL)), prior(prior_), likelihood(likelihood_),
+  kernel(kernel_)
 {
-  nsample = (nmc - nburn)/nthin;
   assert(x0 != NULL);
   current = new_dup_vector(x0, nparam);
-  sample = new_matrix(nsample,nparam);
-}
-mcmcBase::mcmcBase(int nparam_, int nmc_, int nburn_, int nthin_,
-		   double* x0, double post0, priorBase* prior_):
-  nparam(nparam_), nmc(nmc_), nburn(nburn_), nthin(nthin_), naccept(0),clogpost(post0),
-  generator(time(NULL)), prior(prior_)
-{
-  nsample = (nmc - nburn)/nthin;
-  assert(x0 != NULL);
-  current = new_dup_vector(x0, nparam);
-  sample = new_matrix(nsample,nparam);
+  sample = new_matrix(nmc,nparam);
 }
 mcmcBase::~mcmcBase()
 {
@@ -48,12 +37,12 @@ double mcmcBase::evalLogPosterior(double* param)
 }
 void mcmcBase::run()
 {
-  int i, j, k;
+  int i;
   double logpost, logaccprob, logru;
   double *proposal;
   std::uniform_real_distribution<double> distribution(0.0,1.0);
   proposal = new_vector(nparam);
-  for(i=0, j=-nburn, k=0; i<nmc; ++i, ++j)
+  for(i=0; i<nmc; ++i)
   {
     kernel->propose(current,proposal); // sampling a proposal parameter
     logpost = evalLogPosterior(proposal);
@@ -67,17 +56,14 @@ void mcmcBase::run()
       clogpost = logpost;
       naccept++;
     }
-    if(j >= 0 && j % nthin == 0)
-    {
-      dupv(sample[k],current,nparam);
-      k++;
-    }
+    dupv(sample[i],current,nparam);
+    kernel->update(i,this);
   }
   free(proposal);
 }
 void mcmcBase::getSample(double *output)
 {
-  int slen = nparam*nsample;
+  int slen = nparam*nmc;
   dupv(output,sample[0],slen);
 }
 

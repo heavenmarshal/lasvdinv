@@ -20,6 +20,7 @@ public:
   void updatecov(int niter, double **sample);
   void propose(double *from, double *to);
   double logDensity(double *from, double *to);
+  void update(int niter, mcmcBase *mcobj);
 private:
   int n0;			// the threshold number of iterations for adaption
   int citer;			// record current number of iterations

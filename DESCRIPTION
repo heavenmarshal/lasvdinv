@@ -1,6 +1,6 @@
 Package: lasvdinv
 Version: 1.0-1
-Date: 2017-08-25
+Date: 2018-08-28
 Author: Ru Zhang
 Depends: R (>= 2.14)
 NeedsCompilation: yes

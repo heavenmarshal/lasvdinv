@@ -1,4 +1,2 @@
 useDynLib(lasvdinv)
-export(lasvdinv,oracleinv,lasvdnewtoninv,
-       lagpscalarnewtoninv,lagpscalarinv,lasvdFixvarinv,
-       lasvdFixvarAdaptiveinv,lasvdProfileAdaptiveinv)
+export(lasvdinv)

@@ -5,6 +5,10 @@ extern "C"{
   #include "linalgextra.h"
 }
 
+void kernelAdaptive::update(int niter, mcmcBase *mcobj)
+{
+  updatecov(niter,mcobj->getSample());
+}
 void kernelAdaptive::updatecov(int niter, double **sample)
 {
   citer = niter;
