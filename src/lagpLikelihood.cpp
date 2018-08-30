@@ -26,31 +26,6 @@ static void diff_vector(double* vec, double* vdif, unsigned int len)
     vec[i] -= vdif[i];
 }
 
-double lagpNaiveLikelihood::evalLogLikelihood(double* param)
-{
-  double dev, dtlen, loglik;
-  double *xpred, *pmean, *ps2;
-  dtlen = (double) tlen;
-  xpred = new_dup_vector(param,nparam);
-  pmean = new_vector(tlen);
-  ps2 = new_vector(tlen);	//
-  lasvdgp = newlasvdGP(xpred,design,resp,ndesign,nparam,tlen,nn,n0,
-		       nfea,nn,1,frac,gstart);
-  jmlelasvdGP(lasvdgp,100,0);
-  iterlasvdGP(lasvdgp,resvdThres,every,100,0);
-  predlasvdGP(lasvdgp,pmean,ps2);
-  linalg_daxpy(tlen,-1.0,xi,1,pmean,1);
-  dev = linalg_ddot(tlen,pmean,1,pmean,1);
-  dev /= dtlen;
-  loglik = -0.5 * LOG2PI - 0.5 * dtlen;
-  loglik -= 0.5*dtlen*log(dev);
-  deletelasvdGP(lasvdgp);
-  free(pmean);
-  free(ps2);
-  free(xpred);
-  return loglik;
-}
-
 double lagpProfileLikelihood::evalLogLikelihood(double* param)
 {
   double dtlen, loglik, upb, sig2esp;

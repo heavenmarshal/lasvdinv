@@ -24,6 +24,7 @@ class kernelBase{
 public:
   kernelBase(int nparam_): nparam(nparam_), generator(time(NULL)){};
   virtual ~kernelBase(){};
+  virtual void init(){};
   virtual void propose(double* from, double* to){};
   virtual double logDensity(double* from, double* to){return 0.0;};
   virtual void update(int iter, mcmcBase *mcobj){};

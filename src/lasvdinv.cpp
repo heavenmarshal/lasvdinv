@@ -50,36 +50,37 @@ extern "C"{
 #endif
       likelihoodBase *likelihood;
       kernelBase* kernel;
+      switch(*liktype_){
+      case Profile:
+	likelihood = new lagpProfileLikelihood(ndesign, nparam, tlen, *n0_, *nn_, *nfea_,
+					       *resvdThres_, *every_, *frac_, *gstart_,
+					       xi_, design, resp);
+	break;
+      case Fixvar:
+	likelihood = new lagpFixvarLikelihood(ndesign, nparam, tlen, *n0_, *nn_, *nfea_,
+					      *resvdThres_, *every_, *noiseVar_, *frac_, *gstart_,
+					      xi_, design, resp);
+	break;
+      }
+      switch(*kertype_){
+      case Normal:
+	kernel = new normalKernel(nparam, *kersd);
+	break;
+      case Adaptive:
+	kernel = new kernelAdaptive(nparam, *adpthres_, *eps_, *sval_, *kersd);
+	break;
+      }
+      uniformPrior prior(nparam, lb_, ub_);
       for(i = start; i < *nstarts_; i+=step)
       {
-	switch(*liktype_){
-	case Profile:
-	  likelihood = new lagpProfileLikelihood(ndesign, nparam, tlen, *n0_, *nn_, *nfea_,
-						 *resvdThres_, *every_, *frac_, *gstart_,
-						 xi_, design, resp);
-	  break;
-	case Fixvar:
-	  likelihood = new lagpFixvarLikelihood(ndesign, nparam, tlen, *n0_, *nn_, *nfea_,
-						*resvdThres_, *every_, *noiseVar_, *frac_, *gstart_,
-						xi_, design, resp);
-	  break;
-	}
-	switch(*kertype_){
-	case Normal:
-	  kernel = new normalKernel(nparam, *kersd);
-	  break;
-	case Adaptive:
-	  kernel = new kernelAdaptive(nparam, *adpthres_, *eps_, *sval_, *kersd);
-	  break;
-	}
-	uniformPrior prior(nparam, lb_, ub_);
+
 	mcmcBase mcmc(nparam, *nmc_, xstarts[i], poststarts_[i],
 		      &prior, likelihood, kernel);
 	mcmc.run();
 	mcmc.getSample(samples+i*slen);
-	delete likelihood;
-	delete kernel;
       }
+      delete likelihood;
+      delete kernel;
 #ifdef _OPENMP
     }
 #endif

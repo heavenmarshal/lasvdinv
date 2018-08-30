@@ -34,8 +34,8 @@ lasvdinv <- function(design, resp, xi, nstarts, nmc, n0, nn, noiseVar=0,
               as.integer(every), as.integer(nthread), as.integer(adpthres),as.double(noiseVar),
               as.double(frac), as.double(gstart), as.double(kersd), as.double(xi),
               as.double(t(design)), as.double(resp), as.double(t(xstarts)),
-              as.double(poststarts), as.double(lb), as.double(ub),
-              samples=double(nstarts*nparam*nmc))
+              as.double(poststarts), as.double(lb), as.double(ub), as.double(eps),
+              as.double(sval),samples=double(nstarts*nparam*nmc))
     samples <- matrix(out$samples,nrow=nstarts*nmc,byrow=TRUE)
     return(samples)
 }

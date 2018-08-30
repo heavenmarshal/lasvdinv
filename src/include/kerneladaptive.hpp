@@ -17,7 +17,7 @@ public:
     delete_matrix(covmat);
     delete_matrix(umat);
   };
-  void updatecov(int niter, double **sample);
+  void init(){citer=0;}
   void propose(double *from, double *to);
   double logDensity(double *from, double *to);
   void update(int niter, mcmcBase *mcobj);
@@ -26,6 +26,7 @@ private:
   int citer;			// record current number of iterations
   double eps, sval, sigma0;
   double **covmat, **umat;
+  void updatecov(int niter, double **sample);
   void regularpropose(double *from, double *to);
   double regularlogDensity(double *from, double *to);
   void adaptivepropose(double *from, double *to);

@@ -55,17 +55,6 @@ protected:
   lasvdGP *lasvdgp;
 };
 
-class lagpNaiveLikelihood: public lagpLikelihood{
-public:
-  lagpNaiveLikelihood(unsigned int ndesign_, unsigned int nparam_, unsigned int tlen_,
-		      unsigned int n0_, unsigned int nn_, unsigned int nfea_,
-		      unsigned int resvdThres_, unsigned int every_, double frac_,
-		      double gstart_, double *xi_, double **design_, double **resp_):
-    lagpLikelihood(ndesign_, nparam_, tlen_, n0_, nn_, nfea_, resvdThres_, every_, frac_,
-			   gstart_, xi_, design_, resp_){};
-  virtual double evalLogLikelihood(double* param);
-};
-
 class lagpProfileLikelihood: public lagpLikelihood{
 public:
   lagpProfileLikelihood(unsigned int ndesign_, unsigned int nparam_, unsigned int tlen_,

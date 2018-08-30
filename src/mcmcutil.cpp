@@ -42,6 +42,7 @@ void mcmcBase::run()
   double *proposal;
   std::uniform_real_distribution<double> distribution(0.0,1.0);
   proposal = new_vector(nparam);
+  kernel -> init();
   for(i=0; i<nmc; ++i)
   {
     kernel->propose(current,proposal); // sampling a proposal parameter
