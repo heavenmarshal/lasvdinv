@@ -46,15 +46,4 @@ void renewlasvdGP(lasvdGP* lasvdgp);
 void predlasvdGP(lasvdGP* lasvdgp, double* pmean, double* ps2);
 void iterlasvdGP(lasvdGP* lasvdgp, unsigned int resvdThres,
 		 unsigned int every, unsigned int maxit, unsigned int verb);
-
-void lasvdGP_worker(double** X0, double **design, double **resp,
-		    unsigned int M, unsigned int N, unsigned int m,
-		    unsigned int tlen, unsigned int nn, unsigned int n0,
-		    unsigned int nfea, unsigned int nsvd, unsigned int nadd,
-		    double frac, double gstart, unsigned int resvdThres,
-		    unsigned int every, unsigned int maxit, unsigned int verb,
-		    double **pmean, double **ps2);
-
-
-
 #endif

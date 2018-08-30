@@ -21,13 +21,30 @@
  * Questions? Contact Robert B. Gramacy (rbg@vt.edu)
  *
  ****************************************************************************/
+#include "matrix.h"
 
-#ifndef __UTIL_H__
-#define __UTIL_H__
+/*
+ * distance:
+ * 
+ * C-side version of distance_R
+ */
 
-/* #define SDEPS sqrt(DOUBLE_EPS) */
+void distance(double **X1, const unsigned int n1, double **X2,
+	      const unsigned int n2, const unsigned int m,
+	      double **D)
+{
+  unsigned int i,j,k;
 
-double log_determinant_chol(double **M, const unsigned int n);
-double Brent_fmin(double ax, double bx, double (*f)(double, void *),
-      void *info, double tol);
-#endif
+  /* for each row of X1 and X2 */
+  for(i=0; i<n1; i++) {
+    for(j=0; j<n2; j++) {
+
+      /* sum the squared entries */
+      D[i][j] = 0.0;
+      for(k=0; k<m; k++) {
+	      D[i][j] += sq(X1[i][k] - X2[j][k]);
+      }
+
+    }
+  }
+}

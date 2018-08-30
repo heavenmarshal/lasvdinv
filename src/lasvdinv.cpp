@@ -50,26 +50,19 @@ extern "C"{
 #endif
       likelihoodBase *likelihood;
       kernelBase* kernel;
-      switch(*liktype_){
-      case Profile:
+      if(*liktype_ == Profile)
 	likelihood = new lagpProfileLikelihood(ndesign, nparam, tlen, *n0_, *nn_, *nfea_,
 					       *resvdThres_, *every_, *frac_, *gstart_,
 					       xi_, design, resp);
-	break;
-      case Fixvar:
+      else
 	likelihood = new lagpFixvarLikelihood(ndesign, nparam, tlen, *n0_, *nn_, *nfea_,
 					      *resvdThres_, *every_, *noiseVar_, *frac_, *gstart_,
 					      xi_, design, resp);
-	break;
-      }
-      switch(*kertype_){
-      case Normal:
+      if(*kertype_ == Normal)
 	kernel = new normalKernel(nparam, *kersd);
-	break;
-      case Adaptive:
+      else
 	kernel = new kernelAdaptive(nparam, *adpthres_, *eps_, *sval_, *kersd);
-	break;
-      }
+
       uniformPrior prior(nparam, lb_, ub_);
       for(i = start; i < *nstarts_; i+=step)
       {

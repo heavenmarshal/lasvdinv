@@ -1,8 +1,7 @@
-#ifndef __LINALGEXTRA_H__
-#define __LINALGEXTRA_H__
+#ifndef __LINALGEXT_H__
+#define __LINALGEXT_H__
 #include "matrix.h"
 #include "linalg.h"
-
 #define dtrmv dtrmv_
 extern void dtrmv(char* uplo, char* trans, char* diag,
 		  int *n, double* a, int *lda, double *x,
@@ -11,6 +10,11 @@ extern void dtrmv(char* uplo, char* trans, char* diag,
 extern void dtrsm(char* side, char* uplo, char* transa, char* diag,
 		  int* m, int *n, double *alpha, double* a, int *lda,
 		  double *b, int *ldb);
+#define dgesdd dgesdd_
+extern void dgesdd (const char *jobz,const int *m, const int *n,
+		    double *a, const int *lda, double *s, double *u, const int *ldu,
+		    double *vt, const int *ldvt, double *work, const int *lwork,
+		    int *iwork, int *info);
 
 void linalg_dtrmv(const enum CBLAS_UPLO up, const enum CBLAS_TRANSPOSE tr,
 		  const enum CBLAS_DIAG diag, int n, double **A, int lda,
@@ -19,4 +23,6 @@ void linalg_dtrsm(const enum CBLAS_SIDE side, const enum CBLAS_UPLO up,
 		  const enum CBLAS_TRANSPOSE tr, enum CBLAS_DIAG diag,
 		  int m, int n, double alpha, double **A, int lda,
 		  double *b, int ldb);
+
+void linalg_dgesdd(double **, int, int, double *, double *, double **);
 #endif

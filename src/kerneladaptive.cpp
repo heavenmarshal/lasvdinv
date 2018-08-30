@@ -2,7 +2,7 @@
 extern "C"{
   #include "matrix.h"
   #include "linalg.h"
-  #include "linalgextra.h"
+  #include "linalgext.h"
 }
 
 void kernelAdaptive::update(int niter, mcmcBase *mcobj)

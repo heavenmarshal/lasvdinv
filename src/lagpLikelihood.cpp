@@ -1,6 +1,7 @@
 #include<cmath>
 #include<cstdlib>
 #include<iostream>
+#include<cfloat>
 #include"lagpLikelihood.hpp"
 
 extern "C"{
@@ -11,7 +12,7 @@ extern "C"{
   #include "matrixext.h"
   #include "linalg.h"
 }
-#define SDEPS sqrt(DOUBLE_EPS)
+#define SDEPS sqrt(DBL_EPSILON)
 
 static void sq_vector(double* vec, double* vold, unsigned int len)
 {
@@ -105,9 +106,8 @@ double lagpProfileLikelihood::nloglikelihood(double sig2eps, void* info)
 
 double lagpFixvarLikelihood::evalLogLikelihood(double *param)
 {
-  double dtlen, loglik, upb, sig2esp;
+  double loglik;
   double *xpred;
-  dtlen = (double) tlen;
   xpred = new_dup_vector(param,nparam);
   lasvdgp = newlasvdGP(xpred,design,resp,ndesign,nparam,tlen,nn,n0,
 		       nfea,nn,1,frac,gstart);
