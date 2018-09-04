@@ -1,4 +1,10 @@
+MACFLAG = `echo 'cat(any(grepl("\\bapple\\b|\\bmacos\\b",as.character(sessionInfo()))))'\
+| "${R_HOME}/bin/R" --vanilla --slave`
+OMPFLAG = $(SHLIB_OPENMP_CFLAGS)
+ifeq ($MACFLAG, TRUE)
+OMPFLAG = ""
+endif
 CXX_STD = CXX11
-PKG_CXXFLAGS = -g -Wall -I include $(SHLIB_OPENMP_CFLAGS)
+PKG_CXXFLAGS = -g -Wall -I include $(OMPFLAG)
 PKG_CFLAGS = -g -Wall -I include
-PKG_LIBS = ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS} $(SHLIB_OPENMP_CFLAGS)
+PKG_LIBS = ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS} $(OMPFLAG)
