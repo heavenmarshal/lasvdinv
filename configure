@@ -1,0 +1,6 @@
+OSXFLAG=`${R_HOME}/bin/Rscript config.r`
+if [ "$OSXFLAG" = "FALSE" ]; then
+    OMPFLAG="\$(SHLIB_OPENMP_CFLAGS)"
+fi
+sed -e "s/@OMPFLAG@/$OMPFLAG/" src/Makevars.in > src/Makevars
+exit 0
